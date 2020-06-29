@@ -3,18 +3,28 @@ const dotenv = require('dotenv');
 let instance = null;
 dotenv.config();
 
-const connection = mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE,
-    port: process.env.DB_PORT
+// const connection = mysql.createConnection({
+//     host: process.env.HOST,
+//     user: process.env.USER,
+//     password: process.env.PASSWORD,
+//     database: process.env.DATABASE,
+//     port: process.env.DB_PORT
+// });
+
+var connection = mysql.createConnection({
+  host     : 'localhost',
+  user     : 'root',
+  password : '',
+  database : 'pizza_app',
+  port: '3306'
 });
 
 connection.connect((err) => {
     if (err) {
+        console.log("this was executed");
         console.log(err.message);
     }
+
     // console.log('db ' + connection.state);
 });
 
@@ -47,43 +57,29 @@ class DbService {
         const timestamp = new Date();
         
         return new Promise((resolve, reject) => {
-            const query = "INSERT INTO `pizza_app`.`users` (email,phone,username,password,address,timestamp) VALUES (?,?,?,?,?,?)";
-
-            connection.query('SELECT email FROM users WHERE email ="' + mysql.escape(email) +'"', function (err, result) {
-                if (err) throw err;
-                console.log(result);
-                //You will get an array. if no users found it will return.
+            const query = "INSERT INTO `pizza_app`.`users` (email,phone,username,password,address,timestamp) VALUES (?,?,?,?,?,?)";            
             
-                if(result[0].email.length > 0){  
-            
-                    connection.query(query, [name,phone, dateAdded] , (err, result) => {
-                    if (err){
-                        reject(new Error(err.message))
-                    } else{
-                        //console.log('Result : ', result);
-                        let output = {
-                            id : result.insertId,
-                            name : name,
-                            phone : phone,
-                            dateAdded : dateAdded
-                        };
-                        resolve(output);
-                    }
-                    
-                });
+            connection.query(query, [email,phone,username,password,address,timestamp] , (err, result) => {
 
-
-
-
-                    res.send('Welcome');
+                if (err){
+                    reject(new Error(err.message))
+                } else{
+                    console.log('Result : ', result);
+                    let output = {
+                        id : result.insertId,
+                        email : email,
+                        phone : phone,
+                        username: username,
+                        password : password,
+                        address : address,
+                        timestamp : timestamp
+                    };
+                    resolve(output);
                 }
-                });
+                
+            });
 
-
-
-
-
-        });          
+        });    
 
         
     };

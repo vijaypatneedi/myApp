@@ -5,21 +5,34 @@ const router = express.Router()
 // const dotenv = require('dotenv');
 // dotenv.config();
 
-//const dbService = require('./dbService');
+const dbService = require('.././database/dbservice');
 
 // app.use(cors());
 router.use(express.json());
 // app.use(express.urlencoded({ extended : false }));
 
-// middleware that is specific to this router
+
 
 
 
 // define the about route
 router.get('/signup', (req, res)=> {
-    res.send('Check your details in console')
+    //res.send('Check your details in console')
     const { email,phone,username,password,address } = req.body;
+
     console.log(email,phone,username,password,address);
+
+    const db = dbService.getDbServiceInstance();
+    
+    db.insertNewUser(email,phone,username,password,address).then(data => {
+      console.log('Data : ', data);
+      res.status(200).json({output : data});
+    })
+    .catch(err => {
+
+      res.status(500).json({Error : err});
+
+    });
 })
   
 module.exports = router
