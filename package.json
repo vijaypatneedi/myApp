@@ -1,0 +1,25 @@
+{
+  "name": "myapp",
+  "version": "1.0.0",
+  "description": "delivery app",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vijaypatneedi/myApp.git"
+  },
+  "keywords": [
+    "pizza",
+    "delivery",
+    "express",
+    "nodejs"
+  ],
+  "author": "vijay_patneedi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vijaypatneedi/myApp/issues"
+  },
+  "homepage": "https://github.com/vijaypatneedi/myApp#readme"
+}
