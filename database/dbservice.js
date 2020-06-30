@@ -12,11 +12,11 @@ dotenv.config();
 // });
 
 var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : '',
-  database : 'pizza_app',
-  port: '3306'
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'pizza_app',
+    port: '3306'
 });
 
 connection.connect((err) => {
@@ -52,50 +52,66 @@ class DbService {
     }
 
 
-    insertNewUser(email,phone,username,password,address) {
-        
+
+    insertNewUser(email, phone, username, password, address) {
+        console.log("insertuser called");
         const timestamp = new Date();
-        
+
         return new Promise((resolve, reject) => {
-            const query = "INSERT INTO `pizza_app`.`users` (email,phone,username,password,address,timestamp) VALUES (?,?,?,?,?,?)";            
+
+            const query1 = "SELECT COUNT(*) AS cnt FROM `pizza_app`.`users` WHERE (email LIKE '%"+email+"%' OR phone LIKE '%"+phone+"%')";
+
+
+            const query2 = "INSERT INTO `pizza_app`.`users` (email,phone,username,password,address,timestamp) VALUES (?,?,?,?,?,?)";
+
             
-            connection.query(query, [email,phone,username,password,address,timestamp] , (err, result) => {
 
-                if (err){
-                    reject(new Error(err.message))
-                } else{
-                    console.log('Result : ', result);
-                    let output = {
-                        id : result.insertId,
-                        email : email,
-                        phone : phone,
-                        username: username,
-                        password : password,
-                        address : address,
-                        timestamp : timestamp
-                    };
-                    resolve(output);
+            connection.query(query1, [email, phone], (err, dbresult) => {
+                console.log("query executed");
+                if (err) {
+                   console.log('Failed to execute the select query ', err);
+                   reject(new Error(err.message))
+                } else {
+                    if (dbresult[0].cnt > 0) {
+                        // Already exist 
+                        resolve(false, {Error : 'Email already in use'});
+                    } else {
+                        connection.query(query2, [email, phone, username, password, address, timestamp], (err, result) => {
+                            if (err) {
+                                reject(new Error(err.message))
+                            } else {
+                                console.log('Result : ', result);
+                                let output = {
+                                    id: result.insertId,
+                                    email: email,
+                                    phone: phone,
+                                    username: username,
+                                    password: password,
+                                    address: address,
+                                    timestamp: timestamp
+                                };
+                                resolve(true, output);
+                            }
+
+                        });
+                    }
                 }
-                
             });
-
-        });    
-
-        
+        });
     };
 
     async deleteRowById(id) {
         try {
-            id = parseInt(id, 10); 
+            id = parseInt(id, 10);
             const response = await new Promise((resolve, reject) => {
                 const query = "DELETE FROM names WHERE id = ?";
-    
-                connection.query(query, [id] , (err, result) => {
+
+                connection.query(query, [id], (err, result) => {
                     if (err) reject(new Error(err.message));
                     resolve(result.affectedRows);
                 })
             });
-    
+
             return response === 1 ? true : false;
         } catch (error) {
             console.log(error);
@@ -103,23 +119,23 @@ class DbService {
         }
     }
 
-    updateUserById(id, name,phone) {
-        
-            id = parseInt(id, 10);
-            
-            return new Promise((resolve,reject)=>{
-                const query = "UPDATE names SET name = ?,phone=? WHERE id = ?";
+    updateUserById(id, name, phone) {
 
-                connection.query(query, [name,phone, id] , (err, result) => {
-                    if (err) {
-                        reject(new Error(err.message));
-                    }else{
-                        resolve(result.affectedRows);
-                    }
-                });
+        id = parseInt(id, 10);
+
+        return new Promise((resolve, reject) => {
+            const query = "UPDATE names SET name = ?,phone=? WHERE id = ?";
+
+            connection.query(query, [name, phone, id], (err, result) => {
+                if (err) {
+                    reject(new Error(err.message));
+                } else {
+                    resolve(result.affectedRows);
+                }
             });
-    
-            //return response === 1 ? true : false;
+        });
+
+        //return response === 1 ? true : false;
     }
 
     async searchByName(name) {

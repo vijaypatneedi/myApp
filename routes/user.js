@@ -13,10 +13,8 @@ router.use(express.json());
 
 
 
-
-
 // define the about route
-router.get('/signup', (req, res)=> {
+router.post('/signup', (req, res)=> {
     //res.send('Check your details in console')
     const { email,phone,username,password,address } = req.body;
 
@@ -24,9 +22,14 @@ router.get('/signup', (req, res)=> {
 
     const db = dbService.getDbServiceInstance();
     
-    db.insertNewUser(email,phone,username,password,address).then(data => {
+    db.insertNewUser(email,phone,username,password,address).then((isInserted, data) => {
       console.log('Data : ', data);
-      res.status(200).json({output : data});
+      if(isInserted){
+        res.status(200).json({ success : isInserted, data : data});
+      }else{
+        res.status(200).json({ success : isInserted, data : data});
+      }
+       
     })
     .catch(err => {
 
@@ -34,20 +37,11 @@ router.get('/signup', (req, res)=> {
 
     });
 })
-  
+
+
+
+
 module.exports = router
 
 
-/*/create new user 
-app.post('/register', (request, response) => {
-    const { email,phone,username,password,address } = request.body;
-    console.log(email,phone,username,password,address);
 
-    //const db = dbService.getDbServiceInstance();
-    
-    //const result = db.insertNewUser(email,phone,username,password,address);
-    // result
-    // .then(data => response.json({ data: data}))
-    // .catch(err => console.log(err));
-});
-*/
