@@ -100,6 +100,46 @@ class DbService {
         });
     };
 
+
+
+ 
+    
+
+    authenticateuser(email, password) {
+
+        // return new Promise((resolve, reject) => {
+        //     const query = 'SELECT * FROM `pizza_app`.`users` WHERE email = ? AND password = ?';
+
+        //     connection.query(query, [email, password], (err, result) => {
+        //         if (err) {
+        //             reject(new Error(err.message));
+        //         } else {
+        //             if (results.length > 0) {
+        //                    resolve()
+        //              } else {
+        //                  res.send('Incorrect Username and/or Password!');
+        //              }
+        //         }
+        //     });
+        // });
+        if (email && password) {
+            connection.query('SELECT * FROM `pizza_app`.`users` WHERE email = ? AND password = ?', [email, password], function(error, results, fields) {
+                console.log(email, password,results);
+                if (results) {
+                    //return true;
+                    console.log('found');
+                    
+                } else {
+                    //return false;
+                    console.log('not found');
+                    
+                }			
+                
+            });
+        } 
+    }
+
+
     async deleteRowById(id) {
         try {
             id = parseInt(id, 10);

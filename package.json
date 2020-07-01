@@ -21,5 +21,11 @@
   "bugs": {
     "url": "https://github.com/vijaypatneedi/myApp/issues"
   },
-  "homepage": "https://github.com/vijaypatneedi/myApp#readme"
+  "homepage": "https://github.com/vijaypatneedi/myApp#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "express-session": "^1.17.1",
+    "mysql": "^2.18.1"
+  }
 }
