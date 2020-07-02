@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router()
-const session = require('express-session');
 const mysql = require('mysql');
 
 // const cors = require('cors');
@@ -60,10 +59,15 @@ router.post('/login', (req, res) => {
         })
       } else {
         if (results.length > 0) {
+          let user_id = results[0]['user_id'];
           const comparision = (password==results[0].password);
           console.log(password,comparision);
           console.log(results[0].password);
           if (comparision) {
+            req.session.email = email;
+            req.session.user_id = user_id;
+            //req.session.cookie.expires = new Date(Date.now() + 500);
+            req.session.cookie.maxAge = 500;
             res.send({
               "code": 200,
               "success": "login sucessful"
@@ -89,6 +93,17 @@ router.post('/login', (req, res) => {
 
 });
 
+router.post('/logout', (req, res) => {
+  const { email, password } = req.body;
+  req.session.email = null;
+  req.session.password = null;
+  req.session.destroy();
+  res.send({
+    "code": 200,
+    "success": "logout sucessful"
+  });
+  //res.redirect('/');
+});
 
 
 
