@@ -22,14 +22,17 @@ app.use(session({
     store: new FileStore(),
     secret: 'secrett',
     resave: false,
-    cookie: {maxAge: 5000},
+    cookie: {maxAge: 1000000},
     saveUninitialized: true
   }))
 
 
 const user = require('./routes/user')
 app.use('/user', user)
-
+const menu = require('./routes/menu')
+app.use('/menu', menu)
+const order = require('./routes/order')
+app.use('/order', order)
 // app.get('/', (req, res) => res.status(200).json({success : 'Welcome to pizza app', cookies : req.cookies}));
 
 app.get('/', (req, res) => {

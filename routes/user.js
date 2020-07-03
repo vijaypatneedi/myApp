@@ -67,7 +67,7 @@ router.post('/login', (req, res) => {
             req.session.email = email;
             req.session.user_id = user_id;
             //req.session.cookie.expires = new Date(Date.now() + 500);
-            req.session.cookie.maxAge = 500;
+            req.session.cookie.maxAge = 1000000;
             res.send({
               "code": 200,
               "success": "login sucessful"

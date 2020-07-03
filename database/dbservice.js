@@ -34,10 +34,10 @@ class DbService {
         return instance ? instance : new DbService();
     }
 
-    async getAllData() {
+    async getMenu() {
         try {
             const response = await new Promise((resolve, reject) => {
-                const query = "SELECT * FROM names;";
+                const query = "SELECT * FROM `pizza_app`.`menu`;";
 
                 connection.query(query, (err, results) => {
                     if (err) reject(new Error(err.message));
@@ -67,7 +67,7 @@ class DbService {
             
 
             connection.query(query1, [email, phone], (err, dbresult) => {
-                console.log("query executed");
+                //console.log("query executed");
                 if (err) {
                    console.log('Failed to execute the select query ', err);
                    reject(new Error(err.message))
@@ -100,9 +100,51 @@ class DbService {
         });
     };
 
+    placeNewOrder (userId, orderItems,price) {
+        console.log(userId, orderItems, )
+        const timestamp = new Date();
+        const status = 1;
 
+        return new Promise((resolve, reject) => {
 
- 
+            orderItems = JSON.stringify(orderItems);
+
+            const query = "INSERT INTO `pizza_app`.`orders` (user_id,order_items,price,status,timestamp) VALUES (?,?,?,?,?)";    
+            console.log(userId, orderItems, price, status,timestamp);      
+            connection.query(query, [userId, orderItems, price, status,timestamp], (err, result) => {
+                if (err) {
+                    console.log('Error inserting order : ', err);
+                    reject(new Error(err.message))
+                } else {
+                    console.log('Result : ', result);
+                    let output = {
+                        Orderid: result.insertId,
+                        userId: userId,
+                        order_items: orderItems,
+                        price: price,
+                        status: status,
+                        timestamp: timestamp
+                    };
+                    resolve(output);
+                }
+            });
+                
+        });
+    };
+
+    getItemPrice(){
+        return new Promise((resolve, reject) => {
+        const query = "SELECT item_id, item_price  FROM `pizza_app`.`menu`";
+
+            connection.query(query, (err, result) => {
+                if (err) {
+                    reject(new Error(err.message));
+                } else {
+                    resolve(result);
+                }
+            });
+        })
+    }
     
 
     authenticateuser(email, password) {
@@ -161,7 +203,7 @@ class DbService {
 
     updateUserById(id, name, phone) {
 
-        id = parseInt(id, 10);
+        id = req.session.user_id;
 
         return new Promise((resolve, reject) => {
             const query = "UPDATE names SET name = ?,phone=? WHERE id = ?";
@@ -194,6 +236,10 @@ class DbService {
             console.log(error);
         }
     }
+
+
+
+
 }
 
 module.exports = DbService;
