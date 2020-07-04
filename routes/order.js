@@ -12,7 +12,7 @@ order.post("/", async(req, res) => {
     if (userId) {
         const db = dbService.getDbServiceInstance();
         let price = await calculateBill(orderItems);
-        console.log(price);
+        //console.log(price);
         if(price <= 0){
             res.status(500).json({ Error : 'Error calculating order total' }); 
         }
@@ -61,13 +61,13 @@ const calculateBill = function (orderItems) {
 
 }
 
-order.get("/all-individual", (req, res) => {
+order.get("/all", (req, res) => {
     const userId = req.session.user_id;
 
     if (userId) {
         const db = dbService.getDbServiceInstance();
 
-        db.placeNewOrder(userId,orderItems).then((data) => {
+        db.getOrderdetails(userId).then((data) => {
         if (data) {
           res.status(200).json({ data: data });
         } else {
@@ -80,56 +80,38 @@ order.get("/all-individual", (req, res) => {
     } else {
         //please login message
         res.redirect("/");
+        res.status(200).json({ 'Error': 'Please login to place an order' });
     }
 });
 
+order.post("/update", async(req, res) => {
+    const userId = req.session.user_id;
+    const orderItems  = req.body;
+    //console.log(userId);
 
-// POST of /orders
-order.post("/", (req, res) => {
-const userId = req.session.userId || '';
-const processedOrder = req.body.cart;
-if (userId && processedOrder) {
-    const cart = JSON.parse(processedOrder);
-    let totalCost = 0;
+    if (userId) {
+        const db = dbService.getDbServiceInstance();
+        let price = await calculateBill(orderItems);
+        if(price <= 0){
+            res.status(500).json({ Error : 'Error calculating order total' }); 
+        }
+        //console.log(`value of price: ${price}`);
+        db.updateOrder(userId,orderItems,price).then((data) => {
+        if (data) {
+          res.status(200).json({ data: data });
+        } else {
+        console.log("this is executed");
+          res.status(500);
+        }    
+      })
 
-    for (let item of cart) {
-    let numItem = item.price * item.qty;
-    totalCost += numItem;
+    } else {
+        //please login to place order message
+        res.redirect("/");
+        res.status(200).json({ 'Error': 'Please login to place an order' });
     }
-
-    const insertOrders = {
-    text:
-        "INSERT INTO orders (user_id, total_cost) VALUES ($1, $2) RETURNING id",
-    values: [userId, totalCost]
-    };
-
-    db.query(insertOrders)
-    .then(data => {
-        const orderId = data.rows[0].id;
-
-        const insertFoodOrdersQuery = generateQueryFromCart(orderId, cart);
-
-        db.query(insertFoodOrdersQuery)
-        .catch(err => {
-            res.status(500).json({ error: err.message });
-        });
-
-        sendSMS(
-        PHONE_OWNER,
-        `A new 🌭 order has been placed. The order number is ${orderId}.`
-        );
-
-        req.session.cart = null;
-
-        res.redirect(`/orders/${orderId}`);
-    })
-    .catch(err => {
-        res.status(500).json({ error: err.message });
-    });
-} else {
-    res.redirect("/");
-}
 });
+
 
 // GET of /orders/:id
 order.get('/:id', (req, res) => {

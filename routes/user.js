@@ -100,7 +100,7 @@ router.post('/logout', (req, res) => {
   req.session.destroy();
   res.send({
     "code": 200,
-    "success": "logout sucessful"
+    "success": "Sucessfully logged out"
   });
   //res.redirect('/');
 });

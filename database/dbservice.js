@@ -101,7 +101,7 @@ class DbService {
     };
 
     placeNewOrder (userId, orderItems,price) {
-        console.log(userId, orderItems, )
+        console.log(userId, orderItems)
         const timestamp = new Date();
         const status = 1;
 
@@ -112,6 +112,38 @@ class DbService {
             const query = "INSERT INTO `pizza_app`.`orders` (user_id,order_items,price,status,timestamp) VALUES (?,?,?,?,?)";    
             console.log(userId, orderItems, price, status,timestamp);      
             connection.query(query, [userId, orderItems, price, status,timestamp], (err, result) => {
+                if (err) {
+                    console.log('Error inserting order : ', err);
+                    reject(new Error(err.message))
+                } else {
+                    console.log('Result : ', result);
+                    let output = {
+                        Orderid: result.insertId,
+                        userId: userId,
+                        order_items: orderItems,
+                        price: price,
+                        status: status,
+                        timestamp: timestamp
+                    };
+                    resolve(output);
+                }
+            });
+                
+        });
+    };
+
+    updateOrder (userId, orderItems,price) {
+        console.log(userId, orderItems)
+        const timestamp = new Date();
+        const status = 1;
+
+        return new Promise((resolve, reject) => {
+
+            orderItems = JSON.stringify(orderItems);
+
+            const query = "UPDATE `pizza_app`.`orders` SET order_items=?,price=?,status=?,timestamp=? WHERE (user_id LIKE '%"+userId+"%')";    
+            console.log(userId, orderItems, price, status,timestamp);      
+            connection.query(query, [orderItems, price, status,timestamp], (err, result) => {
                 if (err) {
                     console.log('Error inserting order : ', err);
                     reject(new Error(err.message))
@@ -145,7 +177,35 @@ class DbService {
             });
         })
     }
-    
+    // getOrderdetails(){
+    //     return new Promise((resolve, reject) => {
+    //     const query = "SELECT item_id, item_price  FROM `pizza_app`.`orders`";
+
+    //         connection.query(query, (err, result) => {
+    //             if (err) {
+    //                 reject(new Error(err.message));
+    //             } else {
+    //                 resolve(result);
+    //             }
+    //         });
+    //     })
+    // }
+    async getOrderdetails(userId) {
+        try {
+            const response = await new Promise((resolve, reject) => {
+                const query = "SELECT order_items,price,status FROM `pizza_app`.`orders` WHERE user_id =?;";
+
+                connection.query(query,[userId],(err,results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results);
+                })
+            });
+            // console.log(response);
+            return response;
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     authenticateuser(email, password) {
 

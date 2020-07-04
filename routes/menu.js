@@ -12,7 +12,7 @@ menu.get('/', (req,res) => {
     if (data) {
       res.status(200).json({ data: data });
     } else {
-    console.log("this is executed");
+    //console.log("this is executed");
       res.status(500);
     }
 
